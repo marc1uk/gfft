@@ -18,7 +18,7 @@ int main()
     unsigned long i;
 
 // runtime definition of the data length
-    int p = 2;
+    int p = 4;
 
 // create an instance of the GFFT
     AbstractFFT<Tp>* gfft = gfft_factory.CreateObject(p);

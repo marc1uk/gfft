@@ -5,7 +5,7 @@ source code on p2 of article part II (link at end of part 1)
 #include <complex>
 #include <vector>
 
-const int P=2;
+const int P=4;
 typedef double Tp;
 
 AbstractFFT<double>* GetGfft(int p);
@@ -44,9 +44,11 @@ int main(){
 
 void GfftCPU(std::vector<std::complex<double> > &values){
 	
-	static AbstractFFT<Tp>* gfft = NULL;
+	//static AbstractFFT<Tp>* gfft = NULL;
+	static GFFT<P, double, EmptyFFT>* gfft = NULL;
 	if(gfft==NULL){
-		gfft = GetGfft(P);
+		//gfft = GetGfft(P);
+		gfft = new GFFT<P,Tp,EmptyFFT>();
 	}
 	
 	// main reason for this wrapper is that the data has to be in a weird format (for SPEEED):
@@ -79,15 +81,13 @@ AbstractFFT<double>* GetGfft(int p){
 	// ... i think... it needs to compile each size of FFT separately
 	// to allow runtime variation, we pass it a range of potential sizes
 	// and it builds the required FFTs.
-	// with decimationfactor=1 (max size), we need 14 bits... not sure if this means
-	// we need all FFT sizes from 1-14, or just 14...
-	// ... it also seems like maybe you can use gfft directly without the factory
-	// by using FactoryPolicy=EmptyFFT... somehow...
+	// with decimationfactor=1 (max size), we need 14 bits
+	// seems like we need Min=P, Max=P+1? for a fixed P, from trial and error....?
 	// 
-	// ...
-	// for now leave it as per example
-	const unsigned Min = 1;
-	const unsigned Max = 27;
+	// ... it also seems like you can use gfft directly without the factory
+	// (i.e. obtain a GFFT<P, double, EmptyFFT> instead of an AbstractFFT<Tp>*)
+	const unsigned Min = P;
+	const unsigned Max = P+1;
 	
 	// initialization of the object factory
 	Loki::Factory<AbstractFFT<Tp>,unsigned int> gfft_factory;
