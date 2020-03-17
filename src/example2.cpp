@@ -6,25 +6,25 @@ source code on p2 of article part II (link at end of part 1)
 #include <vector>
 
 const int P=4;
-typedef double Tp;
+typedef float Tp;
 
-AbstractFFT<double>* GetGfft(int p);
-void GfftCPU(std::vector<std::complex<double> > &values);
+AbstractFFT<Tp>* GetGfft(int p);
+void GfftCPU(std::vector<std::complex<Tp> > &values);
 
 int main(){
 	
-	std::vector<std::complex<double> > thedata;
+	std::vector<std::complex<Tp> > thedata;
 	
 	// sample data
 	unsigned long n = 1<<P;
 	Tp* data = new Tp [2*n];
 	for (uint i=0; i<n; ++i) {
-		thedata.push_back(std::complex<double>(2*i,2*i+1));
+		thedata.push_back(std::complex<Tp>(2*i,2*i+1));
 	}
 	
 	cout<<"input\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 	for(uint i=0; i<thedata.size(); ++i){
-		std::complex<double> aval = thedata.at(i);
+		std::complex<Tp> aval = thedata.at(i);
 		cout << "\t" << aval.real() << "\t" << aval.imag() << "i\n";
 	}
 	
@@ -33,7 +33,7 @@ int main(){
 	
 	cout<<"\noutput\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 	for(uint i=0; i<thedata.size(); ++i){
-		std::complex<double> aval = thedata.at(i);
+		std::complex<Tp> aval = thedata.at(i);
 		cout << "\t" << aval.real() << "\t" << aval.imag() << "i\n";
 	}
 	
@@ -42,10 +42,10 @@ int main(){
 	return 0;
 }
 
-void GfftCPU(std::vector<std::complex<double> > &values){
+void GfftCPU(std::vector<std::complex<Tp> > &values){
 	
 	//static AbstractFFT<Tp>* gfft = NULL;
-	static GFFT<P, double, EmptyFFT>* gfft = NULL;
+	static GFFT<P, Tp, EmptyFFT>* gfft = NULL;
 	if(gfft==NULL){
 		//gfft = GetGfft(P);
 		gfft = new GFFT<P,Tp,EmptyFFT>();
@@ -56,7 +56,7 @@ void GfftCPU(std::vector<std::complex<double> > &values){
 	unsigned long n = 1<<P;  // bitshift way of doing 2^p... we could just use values.size()
 	
 	// copy the data into the new format array (trash those speed optimizations!)
-	static Tp* data = new double[2*n];
+	static Tp* data = new Tp[2*n];
 	for (uint i=0; i<n; ++i){
 		data[2*i] = values.at(i).real();
 		data[2*i+1] = values.at(i).imag();
@@ -74,7 +74,7 @@ void GfftCPU(std::vector<std::complex<double> > &values){
 	// or, add some way to indicate last iteration and cleanup
 }
 
-AbstractFFT<double>* GetGfft(int p){
+AbstractFFT<Tp>* GetGfft(int p){
 	
 	// range of the needed GFFT classes ...
 	// https://www.drdobbs.com/cpp/a-simple-and-efficient-fft-implementatio/199702312?pgno=2
@@ -91,7 +91,7 @@ AbstractFFT<double>* GetGfft(int p){
 	
 	// initialization of the object factory
 	Loki::Factory<AbstractFFT<Tp>,unsigned int> gfft_factory;
-	FactoryInit<GFFTList<GFFT,Min,Max>::Result>::apply(gfft_factory);
+	FactoryInit<GFFTList<GFFT,Min,Max,Tp>::Result>::apply(gfft_factory);
 	
 	// create an instance of the GFFT
 	AbstractFFT<Tp>* gfft = gfft_factory.CreateObject(p);
